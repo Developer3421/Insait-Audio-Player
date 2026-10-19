@@ -5,17 +5,17 @@
         xmlns:models="clr-namespace:Insait_Audio_Player.Models"
         mc:Ignorable="d"
         x:CompileBindings="False"
-        d:DesignWidth="720"
-        d:DesignHeight="500"
+        d:DesignWidth="900"
+        d:DesignHeight="540"
         x:Class="Insait_Audio_Player.MainWindow"
         Title="Insait Audio Player"
         Icon="avares://Insait Audio Player/Modern_futuristic_audio_player (2).ico"
         WindowStartupLocation="CenterScreen"
         WindowDecorations="None"
-        Width="720"
-        Height="500"
-        MinWidth="600"
-        MinHeight="420"
+        Width="900"
+        Height="540"
+        MinWidth="740"
+        MinHeight="460"
         CanResize="False"
         Background="Transparent"
         FontFamily="Segoe UI, Arial, Tahoma">
@@ -215,6 +215,13 @@
                     <Border Grid.Column="1" Background="Transparent"/>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Stretch">
+                        <Button Name="AboutButton" Classes="window-control" ToolTip.Tip="Про додаток">
+                            <TextBlock Text="ⓘ"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Button>
                         <Button Name="LanguageButton" Classes="window-control" ToolTip.Tip="Change language">
                             <TextBlock Name="LanguageButtonText"
                                        Text="EN"
@@ -224,22 +231,26 @@
                                        VerticalAlignment="Center"/>
                         </Button>
                         <Button Name="MinimizeButton" Classes="window-control" ToolTip.Tip="Згорнути">
-                            <Image Source="avares://Insait Audio Player/Icons/MinButton.png"
-                                   Width="30"
-                                   Height="30"
-                                   Stretch="Uniform"/>
+                            <Border Width="20" Height="20" CornerRadius="4" ClipToBounds="True">
+                                <Image Source="avares://Insait Audio Player/Icons/MinButton.png"
+                                       Width="16"
+                                       Height="16"
+                                       Stretch="UniformToFill"/>
+                            </Border>
                         </Button>
                         <Button Name="CloseButton" Classes="window-control close" ToolTip.Tip="Закрити">
-                            <Image Source="avares://Insait Audio Player/Icons/CloseButton.png"
-                                   Width="30"
-                                   Height="30"
-                                   Stretch="Uniform"/>
+                            <Border Width="20" Height="20" CornerRadius="4" ClipToBounds="True">
+                                <Image Source="avares://Insait Audio Player/Icons/CloseButton.png"
+                                       Width="16"
+                                       Height="16"
+                                       Stretch="UniformToFill"/>
+                            </Border>
                         </Button>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <Grid Grid.Row="1" ColumnDefinitions="276,1,*">
+            <Grid Grid.Row="1" ColumnDefinitions="340,1,*">
                 <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
                     <Border Grid.Row="0"
                             Margin="20,18,20,0"
@@ -274,8 +285,9 @@
                                     VerticalAlignment="Top"
                                     Margin="8,8,0,0">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
-                                    <Ellipse Width="6" Height="6" Fill="{StaticResource AccentGreenBrush}"/>
-                                    <TextBlock Text="WIN API"
+                                    <Ellipse Name="AudioStatusDot" Width="6" Height="6" Fill="{StaticResource AccentGreenBrush}"/>
+                                    <TextBlock Name="AudioBackendText"
+                                               Text="WIN API"
                                                FontSize="9"
                                                FontWeight="Bold"
                                                Foreground="{StaticResource AccentGreenBrush}"
@@ -386,57 +398,66 @@
                         </Button>
                     </StackPanel>
 
-                    <Grid Grid.Row="4" Margin="20,10,20,14" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
-                        <Button Grid.Column="0" Classes="toggle-btn" Name="ShuffleButton" ToolTip.Tip="Перемішати">
-                            <TextBlock Text="🔀" FontFamily="Segoe UI Emoji" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
-                        <Button Grid.Column="1" Classes="toggle-btn active" Name="RepeatButton" ToolTip.Tip="Повторювати">
-                            <TextBlock Text="🔁" FontFamily="Segoe UI Emoji" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
-                        <Button Grid.Column="2"
-                                Classes="toggle-btn"
-                                Name="PlaybackRateButton"
-                                ToolTip.Tip="Змінити швидкість відтворення"
-                                Width="50">
-                            <TextBlock Name="SpeedText"
-                                       Text="1.0x"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Button>
-                        <TextBlock Grid.Column="3"
-                                   Text="🔊"
-                                   FontFamily="Segoe UI Emoji"
-                                   FontSize="13"
-                                   VerticalAlignment="Center"
-                                   Margin="6,0,2,0"
-                                   Opacity="0.65"/>
-                        <Slider Grid.Column="4"
-                                Name="VolumeSlider"
-                                Minimum="0"
-                                Maximum="100"
-                                Value="75"
-                                VerticalAlignment="Center"/>
-                        <Button Grid.Column="5"
-                                Classes="toggle-btn"
-                                Name="OpenButton"
-                                ToolTip.Tip="Відкрити MP3 файл"
-                                Margin="4,0,0,0">
-                            <TextBlock Text="📂" FontFamily="Segoe UI Emoji" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Button>
-                        <Button Grid.Column="6"
-                                Classes="secondary-action"
-                                Name="SetDefaultMp3Button"
-                                ToolTip.Tip="Зробити плеєр типовим для .mp3"
-                                Margin="8,0,0,0">
-                            <TextBlock Name="SetDefaultMp3ButtonText"
-                                       Text="Для MP3"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Button>
+                    <!-- Bottom controls: row 0 = transport toggles + open, row 1 = volume + set-default -->
+                    <Grid Grid.Row="4" Margin="20,8,20,14" RowDefinitions="Auto,Auto">
+
+                        <!-- Row 0: Shuffle | Repeat | Speed | (spacer) | Open -->
+                        <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,Auto,*,Auto" Margin="0,0,0,6">
+                            <Button Grid.Column="0" Classes="toggle-btn" Name="ShuffleButton" ToolTip.Tip="Перемішати">
+                                <TextBlock Text="🔀" FontFamily="Segoe UI Emoji" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                            <Button Grid.Column="1" Classes="toggle-btn active" Name="RepeatButton" ToolTip.Tip="Повторювати">
+                                <TextBlock Text="🔁" FontFamily="Segoe UI Emoji" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                            <Button Grid.Column="2"
+                                    Classes="toggle-btn"
+                                    Name="PlaybackRateButton"
+                                    ToolTip.Tip="Змінити швидкість відтворення"
+                                    Width="50">
+                                <TextBlock Name="SpeedText"
+                                           Text="1.0x"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Button>
+                            <!-- spacer -->
+                            <Button Grid.Column="4"
+                                    Classes="toggle-btn"
+                                    Name="OpenButton"
+                                    ToolTip.Tip="Відкрити MP3 файл">
+                                <TextBlock Text="📂" FontFamily="Segoe UI Emoji" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- Row 1: Volume icon | Volume slider | Set-default button -->
+                        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
+                            <TextBlock Grid.Column="0"
+                                       Text="🔊"
+                                       FontFamily="Segoe UI Emoji"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,6,0"
+                                       Opacity="0.75"/>
+                            <Slider Grid.Column="1"
+                                    Name="VolumeSlider"
+                                    Minimum="0"
+                                    Maximum="100"
+                                    Value="75"
+                                    VerticalAlignment="Center"/>
+                            <Button Grid.Column="2"
+                                    Classes="secondary-action"
+                                    Name="SetDefaultMp3Button"
+                                    ToolTip.Tip="Зробити плеєр типовим для .mp3"
+                                    Margin="10,0,0,0">
+                                <TextBlock Name="SetDefaultMp3ButtonText"
+                                           Text="Default MP3"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Grid>
 

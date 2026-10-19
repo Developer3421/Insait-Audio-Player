@@ -57,6 +57,14 @@ public sealed class UiLocalizer
         public const string AgreementFooter = nameof(AgreementFooter);
         public const string AgreementAccept = nameof(AgreementAccept);
         public const string AgreementDecline = nameof(AgreementDecline);
+        public const string AboutInfo = nameof(AboutInfo);
+        public const string AboutTitle = nameof(AboutTitle);
+        public const string AboutVersion = nameof(AboutVersion);
+        public const string AboutCreatedBy = nameof(AboutCreatedBy);
+        public const string AboutCreatedDate = nameof(AboutCreatedDate);
+        public const string AboutDescription = nameof(AboutDescription);
+        public const string AboutStack = nameof(AboutStack);
+        public const string AboutClose = nameof(AboutClose);
     }
 
     public static readonly string[] SupportedLanguageCodes = ["en", "de", "ru", "tr", "uk"];
@@ -112,7 +120,15 @@ public sealed class UiLocalizer
         [Keys.AgreementBody] = "This application is provided \"as is\", without warranty of any kind, express or implied.\n\nThe author and distributor make no guarantees regarding reliability, fitness for a particular purpose, availability, data safety, uninterrupted operation, or compatibility with your system.\n\nBy continuing to use this application, you acknowledge that you do so at your own risk. You are responsible for your files, settings, playlists, backups, and any consequences resulting from installation or use.",
         [Keys.AgreementFooter] = "If you do not agree with these terms, please exit the application.",
         [Keys.AgreementAccept] = "I Accept",
-        [Keys.AgreementDecline] = "Exit"
+        [Keys.AgreementDecline] = "Exit",
+        [Keys.AboutInfo] = "About the app",
+        [Keys.AboutTitle] = "Insait Audio Player",
+        [Keys.AboutVersion] = "Version 1.0.1",
+        [Keys.AboutCreatedBy] = "Created by: Oleh Kurylo",
+        [Keys.AboutCreatedDate] = "Created on: April 13, 2026",
+        [Keys.AboutDescription] = "Insait Audio Player is a lightweight offline MP3 player for Windows. Playlists are stored encrypted in SQLite, with shuffle, repeat and playback speed control.",
+        [Keys.AboutStack] = "Avalonia UI, C# / .NET 10, SQLite",
+        [Keys.AboutClose] = "Close"
     };
 
     private static readonly IReadOnlyDictionary<string, string> German = new Dictionary<string, string>
@@ -166,7 +182,15 @@ public sealed class UiLocalizer
         [Keys.AgreementBody] = "Diese Anwendung wird \"wie besehen\" ohne jegliche ausdrückliche oder stillschweigende Gewährleistung bereitgestellt.\n\nDer Autor und der Vertrieb übernehmen keine Garantie hinsichtlich Zuverlässigkeit, Eignung für einen bestimmten Zweck, Verfügbarkeit, Datensicherheit, unterbrechungsfreiem Betrieb oder Kompatibilität mit Ihrem System.\n\nWenn Sie diese Anwendung weiter verwenden, erkennen Sie an, dass dies auf eigenes Risiko geschieht. Sie sind selbst für Ihre Dateien, Einstellungen, Wiedergabelisten, Sicherungen und alle Folgen verantwortlich, die aus Installation oder Nutzung entstehen.",
         [Keys.AgreementFooter] = "Wenn Sie diesen Bedingungen nicht zustimmen, beenden Sie bitte die Anwendung.",
         [Keys.AgreementAccept] = "Ich stimme zu",
-        [Keys.AgreementDecline] = "Beenden"
+        [Keys.AgreementDecline] = "Beenden",
+        [Keys.AboutInfo] = "Über die App",
+        [Keys.AboutTitle] = "Insait Audio Player",
+        [Keys.AboutVersion] = "Version 1.0.1",
+        [Keys.AboutCreatedBy] = "Ersteller: Oleh Kurylo",
+        [Keys.AboutCreatedDate] = "Erstellt am: 13. April 2026",
+        [Keys.AboutDescription] = "Insait Audio Player ist ein leichter Offline-MP3-Player für Windows. Wiedergabelisten werden verschlüsselt in SQLite gespeichert, mit Zufallswiedergabe, Wiederholung und Wiedergabegeschwindigkeit.",
+        [Keys.AboutStack] = "Avalonia UI, C# / .NET 10, SQLite",
+        [Keys.AboutClose] = "Schließen"
     };
 
     private static readonly IReadOnlyDictionary<string, string> Russian = new Dictionary<string, string>
@@ -220,7 +244,15 @@ public sealed class UiLocalizer
         [Keys.AgreementBody] = "Это приложение предоставляется \"как есть\", без каких-либо явных или подразумеваемых гарантий.\n\nАвтор и распространитель не дают гарантий в отношении надёжности, пригодности для конкретной цели, доступности, безопасности данных, непрерывной работы или совместимости с вашей системой.\n\nПродолжая использовать это приложение, вы подтверждаете, что делаете это на свой страх и риск. Вы сами несёте ответственность за свои файлы, настройки, плейлисты, резервные копии и любые последствия установки или использования.",
         [Keys.AgreementFooter] = "Если вы не согласны с этими условиями, пожалуйста, закройте приложение.",
         [Keys.AgreementAccept] = "Принимаю",
-        [Keys.AgreementDecline] = "Выйти"
+        [Keys.AgreementDecline] = "Выйти",
+        [Keys.AboutInfo] = "О приложении",
+        [Keys.AboutTitle] = "Insait Audio Player",
+        [Keys.AboutVersion] = "Версия 1.0.1",
+        [Keys.AboutCreatedBy] = "Создатель: Oleh Kurylo",
+        [Keys.AboutCreatedDate] = "Дата создания: 13 апреля 2026 года",
+        [Keys.AboutDescription] = "Insait Audio Player — это лёгкий офлайн MP3-плеер для Windows. Плейлист хранится в зашифрованном виде в SQLite, есть перемешивание, повтор и управление скоростью.",
+        [Keys.AboutStack] = "Avalonia UI, C# / .NET 10, SQLite",
+        [Keys.AboutClose] = "Закрыть"
     };
 
     private static readonly IReadOnlyDictionary<string, string> Turkish = new Dictionary<string, string>
@@ -274,7 +306,15 @@ public sealed class UiLocalizer
         [Keys.AgreementBody] = "Bu uygulama, açık veya zımni hiçbir garanti olmaksızın \"olduğu gibi\" sunulmaktadır.\n\nYazar ve dağıtıcı; güvenilirlik, belirli bir amaca uygunluk, kullanılabilirlik, veri güvenliği, kesintisiz çalışma veya sisteminizle uyumluluk konusunda hiçbir garanti vermez.\n\nBu uygulamayı kullanmaya devam ederek, bunu tamamen kendi sorumluluğunuzda yaptığınızı kabul etmiş olursunuz. Dosyalarınız, ayarlarınız, çalma listeleriniz, yedekleriniz ve kurulum ya da kullanım sonucunda doğabilecek tüm sonuçlardan siz sorumlusunuz.",
         [Keys.AgreementFooter] = "Bu şartları kabul etmiyorsanız lütfen uygulamadan çıkın.",
         [Keys.AgreementAccept] = "Kabul ediyorum",
-        [Keys.AgreementDecline] = "Çıkış"
+        [Keys.AgreementDecline] = "Çıkış",
+        [Keys.AboutInfo] = "Uygulama hakkında",
+        [Keys.AboutTitle] = "Insait Audio Player",
+        [Keys.AboutVersion] = "Sürüm 1.0.1",
+        [Keys.AboutCreatedBy] = "Oluşturan: Oleh Kurylo",
+        [Keys.AboutCreatedDate] = "Oluşturulma: 13 Nisan 2026",
+        [Keys.AboutDescription] = "Insait Audio Player, Windows için hafif bir çevrimdışı MP3 oynatıcıdır. Çalma listesi SQLite içinde şifreli saklanır; karıştırma, tekrar ve hız kontrolü vardır.",
+        [Keys.AboutStack] = "Avalonia UI, C# / .NET 10, SQLite",
+        [Keys.AboutClose] = "Kapat"
     };
 
     private static readonly IReadOnlyDictionary<string, string> Ukrainian = new Dictionary<string, string>
@@ -328,7 +368,15 @@ public sealed class UiLocalizer
         [Keys.AgreementBody] = "Цей застосунок постачається \"як є\", без будь-яких явних чи неявних гарантій.\n\nАвтор і розповсюджувач не надають гарантій щодо надійності, придатності для певної мети, доступності, безпеки даних, безперервної роботи або сумісності з вашою системою.\n\nПродовжуючи користуватися цим застосунком, ви підтверджуєте, що робите це на власний ризик. Ви самі несете відповідальність за свої файли, налаштування, плейлисти, резервні копії та будь-які наслідки встановлення чи використання.",
         [Keys.AgreementFooter] = "Якщо ви не погоджуєтеся з цими умовами, будь ласка, закрийте застосунок.",
         [Keys.AgreementAccept] = "Приймаю",
-        [Keys.AgreementDecline] = "Вийти"
+        [Keys.AgreementDecline] = "Вийти",
+        [Keys.AboutInfo] = "Про додаток",
+        [Keys.AboutTitle] = "Insait Audio Player",
+        [Keys.AboutVersion] = "Версія 1.0.1",
+        [Keys.AboutCreatedBy] = "Творець: Oleh Kurylo",
+        [Keys.AboutCreatedDate] = "Дата створення: 13 квітня 2026 року",
+        [Keys.AboutDescription] = "Insait Audio Player — це легкий офлайн MP3-плеєр для Windows. Плейлист зберігається у зашифрованому вигляді в SQLite, є перемішування, повтор і керування швидкістю.",
+        [Keys.AboutStack] = "Avalonia UI, C# / .NET 10, SQLite",
+        [Keys.AboutClose] = "Закрити"
     };
 
     private readonly IReadOnlyDictionary<string, string> _activeTranslations;

@@ -31,9 +31,25 @@ public sealed class WinMmAudioPlayer : IDisposable
 
     public string? LoadedFilePath { get; private set; }
 
+    /// <summary>Returns "MCI", "WMP", or "—" depending on which backend is active.</summary>
+    public string ActiveBackendName => _backend switch
+    {
+        PlaybackBackend.Mci               => "MCI",
+        PlaybackBackend.WindowsMediaPlayer => "WMP",
+        _                                 => "—"
+    };
+
     public bool Load(string filePath, out string? errorMessage)
     {
         errorMessage = null;
+
+        // Verify that at least one waveOut output device is present before trying to open.
+        if (AudioDeviceService.GetOutputDeviceCount() == 0)
+        {
+            errorMessage = "Аудіопристрій не знайдено. Підключіть динаміки або навушники.";
+            return false;
+        }
+
         CloseCurrentTrack();
 
         if (TryLoadWithMci(filePath, out errorMessage))
@@ -115,6 +131,11 @@ public sealed class WinMmAudioPlayer : IDisposable
 
     public void SetVolume(double volumePercent)
     {
+        // Always apply waveOut master volume as a reliable system-level fallback.
+        // On devices where MCI "setaudio volume" is silently ignored (e.g. Surface 3),
+        // this ensures the user's slider position is actually honoured.
+        AudioDeviceService.TrySetWaveMapperVolume(volumePercent);
+
         if (!HasLoadedTrack)
         {
             return;
@@ -211,6 +232,15 @@ public sealed class WinMmAudioPlayer : IDisposable
             return ClampToDuration(reportedPosition);
         }
 
+        // Нуль від пристрою — валідний на старті/після seek на початок.
+        // До оцінки вдаємось лише всередині треку (снапшот вже суттєвий),
+        // інакше стрічка часу стрибає на коротких треках.
+        if (!_playbackStartedAtUtc.HasValue || _positionSnapshot < TimeSpan.FromSeconds(1))
+        {
+            _positionSnapshot = reportedPosition;
+            return ClampToDuration(reportedPosition);
+        }
+
         return ClampToDuration(GetEstimatedPosition());
     }
 
@@ -290,6 +320,13 @@ public sealed class WinMmAudioPlayer : IDisposable
 
         TryExecute($"set {Alias} time format milliseconds", out _);
         TryExecute($"set {Alias} speed to {ToMciSpeed(PlaybackRate)}", out _);
+
+        // Explicitly route audio through the waveOut subsystem.
+        // On some devices (Surface 3, certain Realtek/Intel SST drivers) the MCI "mpegvideo"
+        // device defaults to an unavailable DirectSound endpoint; forcing "wave" output ensures
+        // sound comes out of the active speaker/headphone endpoint.
+        TryExecute($"setaudio {Alias} output to wave", out _);
+
         HasLoadedTrack = true;
         LoadedFilePath = filePath;
         _isPaused = false;
@@ -336,6 +373,7 @@ public sealed class WinMmAudioPlayer : IDisposable
         if (duration > TimeSpan.Zero && position >= duration.Subtract(TimeSpan.FromMilliseconds(250)))
         {
             Seek(TimeSpan.Zero, out _);
+            position = TimeSpan.Zero;
         }
 
         if (_isPaused)
@@ -354,6 +392,9 @@ public sealed class WinMmAudioPlayer : IDisposable
                 return false;
             }
         }
+
+        // MCI скидає speed після команд play/resume/seek — застосовуємо швидкість повторно ПІСЛЯ старту.
+        TryExecute($"set {Alias} speed to {ToMciSpeed(PlaybackRate)}", out _);
 
         _isPaused = false;
         StartPositionTracking(position);
@@ -461,6 +502,7 @@ public sealed class WinMmAudioPlayer : IDisposable
                 return false;
             }
 
+            TryExecute($"set {Alias} speed to {ToMciSpeed(PlaybackRate)}", out _);
             _isPaused = false;
             StartPositionTracking(TimeSpan.FromMilliseconds(milliseconds));
             return true;

@@ -1,0 +1,145 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Insait_Audio_Player.AboutWindow"
+        Icon="avares://Insait Audio Player/Modern_futuristic_audio_player (2).ico"
+        Width="400"
+        Height="470"
+        MinWidth="400"
+        MinHeight="470"
+        MaxWidth="400"
+        MaxHeight="470"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        WindowDecorations="None"
+        Background="Transparent"
+        Title="About">
+    <Window.Styles>
+        <Style Selector="Button.window-control">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.window-control:pointerover">
+            <Setter Property="Background" Value="#20FFDAB0"/>
+        </Style>
+        <Style Selector="Button.window-control.close:pointerover">
+            <Setter Property="Background" Value="#CCE53935"/>
+        </Style>
+    </Window.Styles>
+
+    <Border Background="#FF1F1A24"
+            BorderBrush="#FF7C3AED"
+            BorderThickness="1"
+            CornerRadius="12"
+            ClipToBounds="True">
+        <Grid RowDefinitions="38,*,Auto">
+            <Border Name="TitleBar"
+                    Grid.Row="0"
+                    Background="#FF2D2438">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="14,0,0,0"
+                                Spacing="8">
+                        <Image Source="avares://Insait Audio Player/Icons/Modern_futuristic_audio_player (2).png"
+                               Width="18"
+                               Height="18"
+                               Stretch="Uniform"
+                               VerticalAlignment="Center"/>
+                        <TextBlock Name="AboutWindowTitleBarText"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="#FFF0E8F4"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Border Grid.Column="1" Background="Transparent"/>
+                    <Button Grid.Column="2" Name="CloseTitleButton" Classes="window-control close">
+                        <Border Width="20" Height="20" CornerRadius="4" ClipToBounds="True">
+                            <Image Source="avares://Insait Audio Player/Icons/CloseButton.png"
+                                   Width="16"
+                                   Height="16"
+                                   Stretch="UniformToFill"/>
+                        </Border>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Margin="14,14,14,0"
+                    Background="#FF2A2230"
+                    BorderBrush="#FF7C3AED"
+                    BorderThickness="2"
+                    CornerRadius="10"
+                    Padding="18,16">
+                <StackPanel Spacing="6" HorizontalAlignment="Center">
+                    <Image Source="avares://Insait Audio Player/Icons/Modern_futuristic_audio_player (2).png"
+                           Width="72"
+                           Height="72"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center">
+                        <Image.Clip>
+                            <RectangleGeometry Rect="0,0,72,72" RadiusX="14" RadiusY="14"/>
+                        </Image.Clip>
+                    </Image>
+                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                        <TextBlock Text="Insait"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="#FFFFC09F"/>
+                        <TextBlock Text="Audio Player"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="#FFDCC4FF"/>
+                    </StackPanel>
+                    <TextBlock Name="AboutVersionText"
+                               FontSize="12"
+                               Foreground="#FF9E90B0"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Name="AboutCreatedByText"
+                               FontSize="12"
+                               Foreground="#FFDCC4FF"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Name="AboutCreatedDateText"
+                               FontSize="12"
+                               Foreground="#FFDCC4FF"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Name="AboutDescriptionText"
+                               FontSize="12"
+                               Foreground="#FFF0E8F4"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Margin="0,6,0,0"/>
+                    <TextBlock Name="AboutStackText"
+                               FontSize="11"
+                               Foreground="#FF9E90B0"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Button Grid.Row="2"
+                    Name="CloseButton"
+                    HorizontalAlignment="Right"
+                    Margin="0,12,14,12"
+                    MinWidth="110"
+                    Height="32"
+                    CornerRadius="16"
+                    Background="#FFFFC09F"
+                    Foreground="#FF1F1A24"
+                    Cursor="Hand">
+                <TextBlock Name="AboutCloseText"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
+        </Grid>
+    </Border>
+</Window>

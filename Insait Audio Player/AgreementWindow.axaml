@@ -52,16 +52,20 @@
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Button Name="MinimizeButton" Classes="window-control">
-                            <Image Source="avares://Insait Audio Player/Icons/MinButton.png"
-                                   Width="30"
-                                   Height="30"
-                                   Stretch="Uniform"/>
+                            <Border Width="20" Height="20" CornerRadius="4" ClipToBounds="True">
+                                <Image Source="avares://Insait Audio Player/Icons/MinButton.png"
+                                       Width="16"
+                                       Height="16"
+                                       Stretch="UniformToFill"/>
+                            </Border>
                         </Button>
                         <Button Name="CloseButton" Classes="window-control close">
-                            <Image Source="avares://Insait Audio Player/Icons/CloseButton.png"
-                                   Width="30"
-                                   Height="30"
-                                   Stretch="Uniform"/>
+                            <Border Width="20" Height="20" CornerRadius="4" ClipToBounds="True">
+                                <Image Source="avares://Insait Audio Player/Icons/CloseButton.png"
+                                       Width="16"
+                                       Height="16"
+                                       Stretch="UniformToFill"/>
+                            </Border>
                         </Button>
                     </StackPanel>
                 </Grid>

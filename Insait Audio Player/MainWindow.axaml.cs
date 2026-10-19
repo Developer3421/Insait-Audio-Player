@@ -9,12 +9,14 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Insait_Audio_Player.Localization;
 using Insait_Audio_Player.Models;
 using Insait_Audio_Player.Services;
+using Ellipse = Avalonia.Controls.Shapes.Ellipse;
 
 namespace Insait_Audio_Player;
 
@@ -68,6 +70,8 @@ public partial class MainWindow : Window
     private readonly TextBlock _playlistCountText;
     private readonly TextBlock _playlistSummaryText;
     private readonly TextBlock _setDefaultMp3ButtonText;
+    private readonly TextBlock _audioBackendText;
+    private readonly Ellipse   _audioStatusDot;
 
     private bool _isPlaybackActive;
     private bool _isSeekDragActive;
@@ -134,6 +138,8 @@ public partial class MainWindow : Window
         _playlistCountText = RequireControl<TextBlock>("PlaylistCountText");
         _playlistSummaryText = RequireControl<TextBlock>("PlaylistSummaryText");
         _setDefaultMp3ButtonText = RequireControl<TextBlock>("SetDefaultMp3ButtonText");
+        _audioBackendText = RequireControl<TextBlock>("AudioBackendText");
+        _audioStatusDot   = RequireControl<Ellipse>("AudioStatusDot");
 
         _playlistBox.ItemsSource = _tracks;
         _currentLanguageIndex = Array.IndexOf(UiLocalizer.SupportedLanguageCodes, _localizer.LanguageCode);
@@ -144,6 +150,7 @@ public partial class MainWindow : Window
 
         _titleBar.PointerPressed += (_, e) => BeginMoveDrag(e);
         _languageButton.Click += (_, _) => CycleLanguage();
+        RequireControl<Button>("AboutButton").Click += async (_, _) => await ShowAboutAsync();
         _closeButton.Click += (_, _) => Close();
         _minimizeButton.Click += (_, _) => WindowState = WindowState.Minimized;
         _playButton.Click += async (_, _) => await TogglePlaybackAsync();
@@ -170,10 +177,13 @@ public partial class MainWindow : Window
 
         _progressTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromMilliseconds(500)
+            Interval = TimeSpan.FromMilliseconds(250)
         };
         _progressTimer.Tick += OnProgressTimerTick;
         _progressTimer.Start();
+
+        // Single-instance: receive files forwarded by a secondary instance.
+        SingleInstanceService.FilesReceived += OnFilesReceivedFromSecondInstance;
 
         ApplyLocalization();
         LoadPersistedState();
@@ -262,7 +272,14 @@ public partial class MainWindow : Window
             return;
         }
 
-        var nextIndex = GetNextIndex();
+        // For manual Next always advance past the current track (skipRepeat = true).
+        // If the playlist is exhausted, wrap to the beginning only on a manual request.
+        var nextIndex = GetNextIndex(skipRepeat: true);
+        if (nextIndex < 0 && manualRequest)
+        {
+            nextIndex = 0; // wrap around
+        }
+
         if (nextIndex >= 0)
         {
             PlayTrackAtIndex(nextIndex, autoplay: true);
@@ -476,9 +493,18 @@ public partial class MainWindow : Window
         var mode = _player.GetMode();
         var duration = _player.GetDuration();
         var position = _player.GetPosition();
-        if (string.Equals(mode, "stopped", StringComparison.OrdinalIgnoreCase) &&
-            duration > TimeSpan.Zero &&
-            position >= duration.Subtract(TimeSpan.FromMilliseconds(350)))
+        if (duration <= TimeSpan.Zero)
+        {
+            return;
+        }
+
+        // Допуск масштабується: на швидкості 2x за 250мс трек проходить 500мс,
+        // а дуже короткі треки коротші за фіксований поріг 350мс.
+        var toleranceMs = Math.Clamp(duration.TotalMilliseconds * 0.05, 150, 600);
+        var isStopped = string.Equals(mode, "stopped", StringComparison.OrdinalIgnoreCase);
+        var reachedEnd = position >= duration.Subtract(TimeSpan.FromMilliseconds(toleranceMs));
+        var pastEnd = position >= duration;
+        if ((reachedEnd && isStopped) || pastEnd)
         {
             HandleTrackCompleted();
         }
@@ -486,6 +512,7 @@ public partial class MainWindow : Window
 
     private void OnWindowClosing(object? sender, WindowClosingEventArgs e)
     {
+        SingleInstanceService.FilesReceived -= OnFilesReceivedFromSecondInstance;
         PersistState();
         _progressTimer.Stop();
         DisposeCoverCache();
@@ -503,11 +530,37 @@ public partial class MainWindow : Window
         ApplyFilesToPlaylist(_pendingLaunchFiles, autoplayFirstSelection: true);
     }
 
+    private void OnFilesReceivedFromSecondInstance(IReadOnlyList<string> filePaths)
+    {
+        // Restore and bring the window to the front.
+        if (WindowState == WindowState.Minimized)
+        {
+            WindowState = WindowState.Normal;
+        }
+
+        Activate();
+        ApplyFilesToPlaylist(filePaths, autoplayFirstSelection: true);
+    }
+
     private void HandleTrackCompleted()
     {
         var nextIndex = GetNextIndex();
         if (nextIndex >= 0)
         {
+            // Повтор того ж треку: не перевідкриваємо файл (це давало ефект
+            // "прискорення"), а просто перемотуємо на початок і граємо далі.
+            if (nextIndex == _currentIndex && _player.HasLoadedTrack)
+            {
+                _player.Seek(TimeSpan.Zero, out _);
+                if (_player.Play(out _))
+                {
+                    _isPlaybackActive = true;
+                }
+                UpdatePlayerUi();
+                PersistState();
+                return;
+            }
+
             PlayTrackAtIndex(nextIndex, autoplay: true);
             return;
         }
@@ -565,6 +618,13 @@ public partial class MainWindow : Window
             ShowStatusMessage(T(UiLocalizer.Keys.TrackNotFound));
             return false;
         }
+
+        // Reset the seek slider to zero immediately so the UI doesn't briefly show
+        // the previous track's position while the new file is being loaded.
+        _isUpdatingSeekSlider = true;
+        _seekSlider.Value = 0;
+        _isUpdatingSeekSlider = false;
+        _currentTime.Text = TrackItem.FormatDuration(TimeSpan.Zero);
 
         if (!_player.Load(track.FilePath, out var loadError))
         {
@@ -652,7 +712,26 @@ public partial class MainWindow : Window
         }
 
         _playIcon.Text = _isPlaybackActive ? "⏸" : "▶";
+        UpdateAudioBadge();
         _ = UpdateCoverArtAsync();
+    }
+
+    private void UpdateAudioBadge()
+    {
+        var deviceCount = AudioDeviceService.GetOutputDeviceCount();
+
+        if (deviceCount == 0)
+        {
+            // No audio output devices — show a warning
+            _audioBackendText.Text = "NO AUDIO";
+            _audioStatusDot.Fill  = new SolidColorBrush(Color.Parse("#FFFF6060"));
+        }
+        else
+        {
+            var backend = _player.HasLoadedTrack ? _player.ActiveBackendName : "WIN API";
+            _audioBackendText.Text = $"{backend} · {deviceCount}▶";
+            _audioStatusDot.Fill  = new SolidColorBrush(Color.Parse("#FFA6E3A1")); // green
+        }
     }
 
     private async Task UpdateCoverArtAsync()
@@ -796,6 +875,7 @@ public partial class MainWindow : Window
         _playlistHeaderText.Text = T(UiLocalizer.Keys.PlaylistTitle);
 
         ToolTip.SetTip(_languageButton, T(UiLocalizer.Keys.ChangeLanguage));
+        ToolTip.SetTip(RequireControl<Button>("AboutButton"), T(UiLocalizer.Keys.AboutInfo));
         ToolTip.SetTip(_minimizeButton, T(UiLocalizer.Keys.Minimize));
         ToolTip.SetTip(_closeButton, T(UiLocalizer.Keys.Close));
         ToolTip.SetTip(_prevButton, T(UiLocalizer.Keys.PreviousTrack));
@@ -813,6 +893,12 @@ public partial class MainWindow : Window
         ToolTip.SetTip(_clearButton, T(UiLocalizer.Keys.ClearPlaylist));
         ToolTip.SetTip(_encryptedInfoButton, T(UiLocalizer.Keys.PlaylistEncryptedInfo));
         _setDefaultMp3ButtonText.Text = T(UiLocalizer.Keys.SetDefaultMp3Short);
+    }
+
+    private async Task ShowAboutAsync()
+    {
+        var dialog = new AboutWindow();
+        await dialog.ShowDialog(this);
     }
 
     private void PersistState()
@@ -840,13 +926,16 @@ public partial class MainWindow : Window
         _playlistRepository.Save(state);
     }
 
-    private int GetNextIndex()
+    private int GetNextIndex(bool skipRepeat = false)
     {
         if (_tracks.Count == 0)
         {
             return -1;
         }
 
+        // Shuffle має пріоритет над повтором: коли обидва увімкнені,
+        // автоперехід обирає випадковий трек, а не повторює поточний.
+        // Повтор без shuffle перезапускає поточний трек (крім ручного Next).
         if (_shuffleEnabled && _tracks.Count > 1)
         {
             var nextIndex = _currentIndex;
@@ -858,13 +947,15 @@ public partial class MainWindow : Window
             return nextIndex;
         }
 
-        var candidate = _currentIndex + 1;
-        if (candidate < _tracks.Count)
+        // When repeat is enabled and this is an automatic completion (not a manual Next press),
+        // replay the current track.
+        if (_repeatEnabled && !skipRepeat)
         {
-            return candidate;
+            return _currentIndex;
         }
 
-        return _repeatEnabled ? 0 : -1;
+        var candidate = _currentIndex + 1;
+        return candidate < _tracks.Count ? candidate : -1;
     }
 
     private int GetPreviousIndex()

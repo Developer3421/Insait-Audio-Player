@@ -189,15 +189,19 @@ VALUES (
 
     private SqliteConnection OpenHealthyConnection()
     {
+        SqliteConnection? connection = null;
         try
         {
-            var connection = OpenRawConnection();
+            connection = OpenRawConnection();
             EnsureDatabaseIsHealthy(connection);
             EnsureSchema(connection);
             return connection;
         }
         catch
         {
+            // Dispose the failed connection before clearing pools so that
+            // the WAL/SHM file handles are released on Windows prior to deletion.
+            connection?.Dispose();
             RecreateDatabase();
 
             var recreatedConnection = OpenRawConnection();
